@@ -17,8 +17,9 @@ class Tasks(api.API):
         self.task_manager = cream.ipc.get_object('org.cream.PIM',
                                     '/org/cream/pim/Tasks')
         builder = gtk.Builder()
-        builder.add_from_file(os.path.join(self.context.working_directory, 
-                                            'add-dialog.glade'))
+        builder.add_from_file(
+            os.path.join(self.context.working_directory, 'add-dialog.glade')
+        )
 
         self.dialog = builder.get_object('dialog')
         self.dialog.connect('delete_event', self.dialog.hide)
@@ -39,9 +40,13 @@ class Tasks(api.API):
         self.reset_dialog()
         if self.dialog.run() == 1:
             data = self.get_data()
-            self.task_manager.add_task(data['title'],
-                    data['description'], data['tags'], data['priority'],
-                    data['deadline'])
+            self.task_manager.add_task(
+                data['title'],
+                data['description'],
+                data['tags'],
+                data['priority'],
+                data['deadline']
+            )
         self.dialog.hide()
 
     @api.expose
@@ -52,8 +57,14 @@ class Tasks(api.API):
         self.set_dialog_entries(task)
         if self.dialog.run() == 1:
             data = self.get_data()
-            self.task_manager.edit_task(int(id), data['title'],
-                    data['description'], data['tags'], data['priority'], data['deadline'])
+            self.task_manager.edit_task(
+                int(id),
+                data['title'],
+                data['description'],
+                data['tags'],
+                data['priority'],
+                data['deadline']
+            )
         self.dialog.hide()
 
     @api.expose
@@ -97,16 +108,20 @@ class Tasks(api.API):
     def get_data(self):
         '''Retrieve the data from the dialog'''
 
-        data = dict()
-        data['title'] = self.title.get_text()
-        data['description'] = self.description.get_text(
-            self.description.get_start_iter(), self.description.get_end_iter())
-        data['tags'] = self.tags.get_text()
-        data['priority'] = self.priority.get_active()
-        date = self.deadline.get_text()
-        timestamp = int(time.mktime(time.strptime(date,'%d.%m.%Y' )))
-        data['deadline'] = timestamp
-        return data
+        return {
+            'title': self.title.get_text(),
+            'description': self.description.get_text(
+                self.description.get_start_iter(),
+                self.description.get_end_iter()
+            ),
+            'tags': self.tags.get_text(),
+            'priority': self.priority.get_active(),
+            'deadline': int(time.mktime(time.strptime(
+                self.deadline.get_text(),
+                '%d.%m.%Y' ))
+            )
+
+        }
 
     def set_dialog_entries(self, task):
         '''When editing a task, set the entries to edit them'''
