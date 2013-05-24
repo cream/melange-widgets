@@ -1,12 +1,11 @@
-#!/usr/bin/env python
-
-import gtk
 import time
 import os.path
-import datetime
 
-import cream.ipc
+from gi.repository import Gtk as gtk
+
 from melange import api
+
+from taskmanager import TaskManager, Status
 
 @api.register('org.cream.melange.TasksWidget')
 class Tasks(api.API):
@@ -14,8 +13,10 @@ class Tasks(api.API):
     def __init__(self):
         api.API.__init__(self)
 
-        self.task_manager = cream.ipc.get_object('org.cream.PIM',
-                                    '/org/cream/pim/Tasks')
+        self.task_manager = TaskManager(
+            os.path.join(self.context.get_user_path(), 'tasks.json')
+        )
+
         builder = gtk.Builder()
         builder.add_from_file(
             os.path.join(self.context.working_directory, 'add-dialog.glade')
@@ -68,7 +69,6 @@ class Tasks(api.API):
         self.dialog.hide()
 
     @api.expose
-    @api.in_main_thread
     def set_task_status(self, id, status):
         '''Set the tasks status.'''
         self.task_manager.set_task_status(int(id), int(status))
@@ -76,34 +76,12 @@ class Tasks(api.API):
     @api.expose
     def list_tasks(self):
         '''Get all tasks which are not marked as done.'''
-        @api.in_main_thread
-        def list_tasks():
-            tasks = self.task_manager.list_tasks()
-            tasks = filter(lambda task: task['status'] != 2, tasks)
-            return map(self.convert_date_to_timedelta, sorted(tasks,
-                                            key=lambda task: task['deadline']))
-        return list_tasks()
+        tasks = self.task_manager.list_tasks()
 
-    def convert_date_to_timedelta(self, task):
-        today = datetime.date.today()
-        deadline = datetime.date.fromtimestamp(task['deadline'])
-        timedelta = abs((today - deadline).days)
-
-        if today > deadline:
-            if timedelta == 1:
-                task['deadline'] = 'yesterday'
-            else:
-                task['deadline'] = '{0} days ago'.format(str(timedelta))
-        elif today < deadline and timedelta < 8:
-            if timedelta == 1:
-                task['deadline'] = 'tomorrow'
-            else:
-                task['deadline'] = '{0} days left'.format(str(timedelta))
-        elif today == deadline:
-            task['deadline'] = 'today'
-        else:
-            task['deadline'] = '{0}.{1}.{2}'.format(deadline.day, deadline.month, deadline.year)
-        return task
+        return [t.to_json() for t in sorted(
+            filter(lambda t: t.status != Status.DONE, tasks),
+            key=lambda t: t.deadline
+        )]
 
     def get_data(self):
         '''Retrieve the data from the dialog'''
@@ -112,7 +90,8 @@ class Tasks(api.API):
             'title': self.title.get_text(),
             'description': self.description.get_text(
                 self.description.get_start_iter(),
-                self.description.get_end_iter()
+                self.description.get_end_iter(),
+                False
             ),
             'tags': self.tags.get_text(),
             'priority': self.priority.get_active(),
@@ -126,22 +105,21 @@ class Tasks(api.API):
     def set_dialog_entries(self, task):
         '''When editing a task, set the entries to edit them'''
 
-        self.title.set_text(task['title'])
-        self.description.set_text(task['description'])
-        self.priority.set_active(task['priority'])
-        timestamp = task['deadline']
+        self.title.set_text(task.title)
+        self.description.set_text(task.description)
+        self.priority.set_active(task.priority)
+        timestamp = task.deadline
         today = time.localtime(timestamp)[:3]
         self.calendar.select_month(today[1] -1, today[0])
         self.calendar.select_day(today[2])
         self.deadline.set_text('{0}.{1}.{2}'.format(today[2], today[1], today[0]))
-        self.tags.set_text(task['category'])
 
     def reset_dialog(self):
         '''When adding a task, clear the dialog'''
 
         self.title.set_text('')
         self.description.set_text('')
-        self.priority.set_active(-1)
+        self.priority.set_active(0)
         self.deadline.set_text('')
         today = time.localtime()
         self.calendar.select_month(today[1] -1, today[0])
