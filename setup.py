@@ -11,7 +11,7 @@ def collect_data_files():
         rel_dir = directory.replace('src/', '')
         for file_ in files:
             data_files.append((
-                    os.path.join('share/cream-melange/data/widgets', rel_dir),
+                    os.path.join('share/cream-melange/widgets', rel_dir),
                     [os.path.join(directory, file_)]
             ))
 
