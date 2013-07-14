@@ -1,4 +1,4 @@
-from melange import api
+from cream.melange import api
 
 
 # This will register the API-class as `widget.api.example`

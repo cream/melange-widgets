@@ -3,7 +3,7 @@ import base64
 
 from gi.repository import Gtk as gtk
 
-from melange import api
+from cream.melange import api
 
 @api.register('org.cream.melange.SketchWidget')
 class Sketch(api.API):

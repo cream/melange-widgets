@@ -3,7 +3,7 @@ import os.path
 
 from gi.repository import Gtk as gtk
 
-from melange import api
+from cream.melange import api
 
 from taskmanager import TaskManager, Status
 

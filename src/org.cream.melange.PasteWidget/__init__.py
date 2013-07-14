@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from melange import api
+from cream.melange import api
 
 import pasty
 from gi.repository import Gtk as gtk, Gdk as gdk

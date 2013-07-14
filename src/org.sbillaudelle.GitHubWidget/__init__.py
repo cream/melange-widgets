@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from melange import api
+from cream.melange import api
 
 import feedparser
 import re

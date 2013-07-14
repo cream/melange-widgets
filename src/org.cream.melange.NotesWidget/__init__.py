@@ -1,6 +1,6 @@
 import os
 
-from melange import api
+from cream.melange import api
 
 
 @api.register('org.cream.melange.NotesWidget')

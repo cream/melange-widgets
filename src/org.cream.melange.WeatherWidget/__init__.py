@@ -5,7 +5,7 @@ import urllib
 from contextlib import closing
 from lxml.etree import parse as parse_xml
 
-from melange import api
+from cream.melange import api
 
 
 CURRENT_URL = 'http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query={0}'

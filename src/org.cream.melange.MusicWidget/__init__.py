@@ -2,7 +2,7 @@
 
 import os
 from PIL import Image
-from melange import api
+from cream.melange import api
 from dbus import DBusException
 
 # initialize lxml

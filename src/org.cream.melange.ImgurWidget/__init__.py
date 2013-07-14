@@ -4,7 +4,7 @@ import urllib2
 from urllib import urlencode
 from urlparse import urlsplit
 
-from melange import api
+from cream.melange import api
 
 IMGUR_UPLOAD_URL = 'http://imgur.com/api/upload.json'
 API_KEY = '97afbe8e4bd793012c847f0f39df8ffe'

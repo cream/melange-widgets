@@ -1,6 +1,6 @@
 from network import NetworkMonitor as _NetworkMonitor
 
-from melange import api
+from cream.melange import api
 
 @api.register('org.cream.melange.NetworkMonitorWidget')
 class NetworkMonitor(api.API):
