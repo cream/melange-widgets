@@ -123,7 +123,7 @@ class Music(api.API):
     def get_coverart(self):
         track = self.player.current_track
         artist, album = track.get('artist'), track.get('album')
-        if artist is None or album is None:
+        if not artist or not album:
             return None
 
         try:
